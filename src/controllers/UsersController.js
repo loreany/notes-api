@@ -23,7 +23,7 @@ class UsersController {
       [name, email, hashedPassword]
     );
 
-    response.status(201).json();
+    return response.status(201).json();
   }
 
   async update(request, response) {
@@ -31,7 +31,7 @@ class UsersController {
     const user_id = request.user.id;
 
     const database = await sqliteConnection();
-    const user = await database.get('SELECT * FROM users WHERE id = (?)', [
+    const user = await database.get(`SELECT * FROM users WHERE id = (?)`, [
       user_id,
     ]);
 
@@ -40,7 +40,7 @@ class UsersController {
     }
 
     const userWithUpdatedEmail = await database.get(
-      'SELECT * FROM users WHERE email = (?)',
+      `SELECT * FROM users WHERE email = (?)`,
       [email]
     );
 
@@ -53,7 +53,7 @@ class UsersController {
 
     if (password && !old_password) {
       throw new AppError(
-        'você precisa informar a senha antiga para definir a nova senha'
+        'Você precisa informar a senha antiga para definir a nova senha'
       );
     }
 
@@ -67,7 +67,7 @@ class UsersController {
       user.password = await hash(password, 8);
     }
 
-    await database.run(
+    database.run(
       `
       UPDATE users SET
       name = ?,
@@ -78,7 +78,7 @@ class UsersController {
       [user.name, user.email, user.password, user_id]
     );
 
-    return response.json();
+    return response.status(200).json();
   }
 }
 
